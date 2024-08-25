@@ -21,28 +21,31 @@ impl Map {
             tiles: vec![TileType::Floor; NUM_TILES],
         }
     }
-    pub fn render(&self, ctx: &mut BTerm) {
-        for y in 0..SCREEN_HEIGHT {
-            for x in 0..SCREEN_WIDTH {
-                let idx = map_idx(x, y);
-                match self.tiles[idx] {
-                    TileType::Floor => {
-                        ctx.set(
-                            x,
-                            y,
-                            RGB::from_f32(0.5, 0.5, 0.5),
-                            RGB::from_f32(0., 0., 0.),
-                            to_cp437('.'),
-                        );
-                    }
-                    TileType::Wall => {
-                        ctx.set(
-                            x,
-                            y,
-                            RGB::from_f32(0., 1.0, 0.),
-                            RGB::from_f32(0., 0., 0.),
-                            to_cp437('#'),
-                        );
+    pub fn render(&self, ctx: &mut BTerm, camera: &Camera) {
+        ctx.set_active_console(0);
+        for y in camera.top_y .. camera.bottom_y {
+            for x in camera.left_x .. camera.right_x {
+                if self.in_bounds(Point::new(x, y)) {
+                    let idx = map_idx(x, y);
+                    match self.tiles[idx] {
+                        TileType::Floor => {
+                            ctx.set(
+                                x - camera.left_x,
+                                y - camera.top_y,
+                                WHITE,
+                                BLACK,
+                                to_cp437('.')
+                            );
+                        }
+                        TileType::Wall => {
+                            ctx.set(
+                                x - camera.left_x,
+                                y - camera.top_y,
+                                WHITE,
+                                BLACK,
+                                to_cp437('#')
+                            );
+                        }
                     }
                 }
             }
